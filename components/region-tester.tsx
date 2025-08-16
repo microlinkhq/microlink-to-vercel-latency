@@ -29,9 +29,10 @@ interface RegionTesterProps {
   isRunning: boolean
   targetUrl: string
   apiKey: string
+  onTestingComplete: () => void // Added callback prop
 }
 
-export function RegionTester({ isRunning, targetUrl, apiKey }: RegionTesterProps) {
+export function RegionTester({ isRunning, targetUrl, apiKey, onTestingComplete }: RegionTesterProps) {
   const [regions, setRegions] = useState<RegionData[]>(REGIONS)
 
   const performCacheTest = async (region: RegionData): Promise<CacheResult> => {
@@ -95,12 +96,13 @@ export function RegionTester({ isRunning, targetUrl, apiKey }: RegionTesterProps
             }
           }),
         )
+        onTestingComplete()
       })
     } else {
       // Reset when not running
       setRegions((prev) => prev.map((region) => ({ ...region, status: "idle", result: undefined })))
     }
-  }, [isRunning, targetUrl, apiKey])
+  }, [isRunning, targetUrl, apiKey, onTestingComplete])
 
   const getCacheStatusColor = (status: string): string => {
     switch (status.toUpperCase()) {

@@ -28,6 +28,10 @@ export default function HomePage() {
     }
   }
 
+  const handleTestingComplete = () => {
+    setIsRunning(false)
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -113,17 +117,15 @@ export default function HomePage() {
         </div>
 
         {/* Code Example */}
-        <div className="mb-8">
-          <h3 className="text-lg font-medium mb-3">API Endpoint</h3>
-          <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
-            <code className="text-green-400 text-sm font-mono">
-              {`curl -X POST /api/microlink -d '{"url": "${targetUrl}"${apiKey ? `, "apiKey": "${apiKey}"` : ""}}'`}
-            </code>
-          </div>
-        </div>
+        
 
         {/* Results Table */}
-        <RegionTester isRunning={isRunning} targetUrl={targetUrl} apiKey={apiKey} />
+        <RegionTester
+          isRunning={isRunning}
+          targetUrl={targetUrl}
+          apiKey={apiKey}
+          onTestingComplete={handleTestingComplete}
+        />
       </main>
     </div>
   )
