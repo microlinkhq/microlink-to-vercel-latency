@@ -10,6 +10,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 })
     }
 
+    console.log("[v0] API called for region:", region)
+    console.log("[v0] Actual deployment region:", process.env.VERCEL_REGION)
+
     const microlinkStartTime = Date.now()
 
     const baseUrl = apiKey ? "https://pro.microlink.io" : "https://api.microlink.io"
@@ -42,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     const microlinkCacheStatus = microlinkResponse.headers.get("cf-cache-status") || "UNKNOWN"
 
-    const response = NextResponse.json({
+    const responseData = {
       success: true,
       microlinkLatency,
       microlinkCacheStatus,
@@ -52,10 +55,23 @@ export async function POST(request: NextRequest) {
         image: data.data?.image?.url,
         url: data.data?.url,
       },
-      region: process.env.VERCEL_REGION || region || "unknown",
+      region: region || process.env.VERCEL_REGION || "unknown", // Use requested region for display
+      actualRegion: process.env.VERCEL_REGION || "unknown", // Track actual deployment region
       timestamp: new Date().toISOString(),
       endpoint: apiKey ? "pro.microlink.io" : "api.microlink.io",
+    }
+
+    console.log("[v0] Response status:", 200)
+    console.log("[v0] Response data:", responseData)
+    console.log("[v0] Processed result:", {
+      microlinkLatency,
+      vercelLatency: microlinkLatency + 10, // Approximate
+      microlinkCacheStatus,
+      vercelCacheStatus: "UNKNOWN",
+      endpoint: responseData.endpoint,
     })
+
+    const response = NextResponse.json(responseData)
 
     response.headers.set("Cache-Control", "public, max-age=300, s-maxage=300")
     response.headers.set("CDN-Cache-Control", "public, max-age=300")
