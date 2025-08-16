@@ -4,7 +4,7 @@ export const runtime = "edge"
 
 export async function POST(request: NextRequest) {
   try {
-    const { url } = await request.json()
+    const { url, apiKey } = await request.json()
 
     if (!url) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 })
@@ -12,11 +12,20 @@ export async function POST(request: NextRequest) {
 
     const startTime = Date.now()
 
-    const microlinkResponse = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`, {
+    const baseUrl = apiKey ? "https://pro.microlink.io" : "https://api.microlink.io"
+    const microlinkUrl = `${baseUrl}?url=${encodeURIComponent(url)}`
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    }
+
+    if (apiKey) {
+      headers["x-api-key"] = apiKey
+    }
+
+    const microlinkResponse = await fetch(microlinkUrl, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
     })
 
     const endTime = Date.now()
@@ -42,6 +51,7 @@ export async function POST(request: NextRequest) {
       },
       region: process.env.VERCEL_REGION || "unknown",
       timestamp: new Date().toISOString(),
+      endpoint: apiKey ? "pro.microlink.io" : "api.microlink.io",
     })
   } catch (error) {
     console.error("Microlink API error:", error)
