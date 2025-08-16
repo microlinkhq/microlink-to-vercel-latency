@@ -93,7 +93,7 @@ export default function HomePage() {
               ) : (
                 <>
                   <Play className="w-4 h-4 mr-2" />
-                  Test Global Latency
+                  Verify Cache Integrity
                 </>
               )}
             </Button>
@@ -104,11 +104,11 @@ export default function HomePage() {
       <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Description */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Global Performance Testing</h2>
+          <h2 className="text-2xl font-semibold mb-4">Cache Integrity Verification</h2>
           <p className="text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            The demo invokes Vercel Functions in our 3 regions, which call the Microlink API to extract metadata from
-            the target URL. Each function makes 10 requests to measure latency and performance across the global edge
-            network. {/* updated description to reflect 3 regions instead of 18 */}
+            The demo verifies cache integrity between Vercel and Microlink across 3 regions. Each test performs a single
+            request to check cf-cache-status from Microlink and cache headers from Vercel, measuring response times to
+            analyze caching behavior across the global edge network.
           </p>
         </div>
 
@@ -117,8 +117,7 @@ export default function HomePage() {
           <h3 className="text-lg font-medium mb-3">API Endpoint</h3>
           <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
             <code className="text-green-400 text-sm font-mono">
-              {`curl -X POST /api/microlink -d '{"url": "${targetUrl}"${apiKey ? `, "apiKey": "${apiKey}"` : ""}}'`}{" "}
-              {/* made API key conditional in the example */}
+              {`curl -X POST /api/microlink -d '{"url": "${targetUrl}"${apiKey ? `, "apiKey": "${apiKey}"` : ""}}'`}
             </code>
           </div>
         </div>

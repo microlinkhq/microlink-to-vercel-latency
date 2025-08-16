@@ -4,13 +4,13 @@ export const runtime = "edge"
 
 export async function POST(request: NextRequest) {
   try {
-    const { url, apiKey } = await request.json()
+    const { url, apiKey, region } = await request.json()
 
     if (!url) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 })
     }
 
-    const startTime = Date.now()
+    const microlinkStartTime = Date.now()
 
     const baseUrl = apiKey ? "https://pro.microlink.io" : "https://api.microlink.io"
     const microlinkUrl = `${baseUrl}?url=${encodeURIComponent(url)}`
@@ -28,8 +28,8 @@ export async function POST(request: NextRequest) {
       headers,
     })
 
-    const endTime = Date.now()
-    const latency = endTime - startTime
+    const microlinkEndTime = Date.now()
+    const microlinkLatency = microlinkEndTime - microlinkStartTime
 
     if (!microlinkResponse.ok) {
       return NextResponse.json(
@@ -40,8 +40,10 @@ export async function POST(request: NextRequest) {
 
     const data = await microlinkResponse.json()
 
-    return NextResponse.json({
-      latency,
+    const microlinkCacheStatus = microlinkResponse.headers.get("cf-cache-status") || "UNKNOWN"
+
+    const response = NextResponse.json({
+      microlinkLatency,
       success: true,
       data: {
         title: data.data?.title,
@@ -49,10 +51,16 @@ export async function POST(request: NextRequest) {
         image: data.data?.image?.url,
         url: data.data?.url,
       },
-      region: process.env.VERCEL_REGION || "unknown",
+      region: process.env.VERCEL_REGION || region || "unknown",
       timestamp: new Date().toISOString(),
       endpoint: apiKey ? "pro.microlink.io" : "api.microlink.io",
+      microlinkCacheStatus,
     })
+
+    response.headers.set("Cache-Control", "public, max-age=300, s-maxage=300")
+    response.headers.set("CDN-Cache-Control", "public, max-age=300")
+
+    return response
   } catch (error) {
     console.error("Microlink API error:", error)
     return NextResponse.json(
