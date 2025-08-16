@@ -82,7 +82,7 @@ export default function HomePage() {
             </div>
             <Button
               onClick={() => setIsRunning(!isRunning)}
-              disabled={isRunning || !apiKey}
+              disabled={isRunning} // removed !apiKey condition to make API key optional
               className="ml-3 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
             >
               {isRunning ? (
@@ -106,9 +106,9 @@ export default function HomePage() {
         <div className="text-center mb-8">
           <h2 className="text-2xl font-semibold mb-4">Global Performance Testing</h2>
           <p className="text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            The demo invokes Vercel Functions in our 18 regions, which call the Microlink API to extract metadata from
+            The demo invokes Vercel Functions in our 3 regions, which call the Microlink API to extract metadata from
             the target URL. Each function makes 10 requests to measure latency and performance across the global edge
-            network.
+            network. {/* updated description to reflect 3 regions instead of 18 */}
           </p>
         </div>
 
@@ -117,7 +117,8 @@ export default function HomePage() {
           <h3 className="text-lg font-medium mb-3">API Endpoint</h3>
           <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
             <code className="text-green-400 text-sm font-mono">
-              {`curl -X POST /api/microlink -d '{"url": "${targetUrl}", "apiKey": "${apiKey}"}'`}
+              {`curl -X POST /api/microlink -d '{"url": "${targetUrl}"${apiKey ? `, "apiKey": "${apiKey}"` : ""}}'`}{" "}
+              {/* made API key conditional in the example */}
             </code>
           </div>
         </div>
