@@ -43,8 +43,9 @@ export async function POST(request: NextRequest) {
     const microlinkCacheStatus = microlinkResponse.headers.get("cf-cache-status") || "UNKNOWN"
 
     const response = NextResponse.json({
-      microlinkLatency,
       success: true,
+      microlinkLatency,
+      microlinkCacheStatus,
       data: {
         title: data.data?.title,
         description: data.data?.description,
@@ -54,7 +55,6 @@ export async function POST(request: NextRequest) {
       region: process.env.VERCEL_REGION || region || "unknown",
       timestamp: new Date().toISOString(),
       endpoint: apiKey ? "pro.microlink.io" : "api.microlink.io",
-      microlinkCacheStatus,
     })
 
     response.headers.set("Cache-Control", "public, max-age=300, s-maxage=300")

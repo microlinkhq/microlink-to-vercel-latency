@@ -37,6 +37,7 @@ export function RegionTester({ isRunning, targetUrl, apiKey, onTestingComplete }
 
   const performCacheTest = async (region: RegionData): Promise<CacheResult> => {
     try {
+      console.log("[v0] Starting cache test for region:", region.vercelRegion)
       const startTime = performance.now()
       const response = await fetch("/api/microlink", {
         method: "POST",
@@ -51,27 +52,33 @@ export function RegionTester({ isRunning, targetUrl, apiKey, onTestingComplete }
       })
       const vercelLatency = Math.round(performance.now() - startTime)
 
+      console.log("[v0] Response status:", response.status)
       const data = await response.json()
+      console.log("[v0] Response data:", data)
 
       if (data.success) {
-        return {
+        const result = {
           microlinkLatency: data.microlinkLatency || 0,
           vercelLatency,
           microlinkCacheStatus: data.microlinkCacheStatus || "UNKNOWN",
           vercelCacheStatus: response.headers.get("x-vercel-cache") || "UNKNOWN",
           endpoint: data.endpoint,
         }
+        console.log("[v0] Processed result:", result)
+        return result
       } else {
+        console.error("[v0] API returned error:", data.error)
         throw new Error(data.error || "API call failed")
       }
     } catch (error) {
-      console.error(`Error testing region ${region.vercelRegion}:`, error)
+      console.error(`[v0] Error testing region ${region.vercelRegion}:`, error)
       throw error
     }
   }
 
   useEffect(() => {
     if (isRunning) {
+      console.log("[v0] Starting tests for all regions")
       // Reset all regions to testing state
       setRegions((prev) => prev.map((region) => ({ ...region, status: "testing", result: undefined })))
 
@@ -79,23 +86,29 @@ export function RegionTester({ isRunning, targetUrl, apiKey, onTestingComplete }
       const testPromises = REGIONS.map(async (region, index) => {
         try {
           const result = await performCacheTest(region)
+          console.log(`[v0] Test completed for ${region.vercelRegion}:`, result)
           return { index, result, status: "complete" as const }
         } catch (error) {
+          console.error(`[v0] Test failed for ${region.vercelRegion}:`, error)
           return { index, error, status: "error" as const }
         }
       })
 
       Promise.all(testPromises).then((results) => {
+        console.log("[v0] All tests completed, updating state:", results)
         setRegions((prev) =>
           prev.map((region, index) => {
             const testResult = results[index]
-            return {
+            const updatedRegion = {
               ...region,
               result: testResult.status === "complete" ? testResult.result : undefined,
               status: testResult.status,
             }
+            console.log(`[v0] Updated region ${region.vercelRegion}:`, updatedRegion)
+            return updatedRegion
           }),
         )
+        console.log("[v0] Calling onTestingComplete")
         onTestingComplete()
       })
     } else {
