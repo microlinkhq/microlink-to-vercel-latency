@@ -69,6 +69,8 @@ export async function GET(request: NextRequest) {
       response.headers.set("ETag", microlinkEtag)
     }
 
+    response.headers.set("x-timestamp", Date.now().toString())
+
     return response
   } catch (error) {
     return NextResponse.json(

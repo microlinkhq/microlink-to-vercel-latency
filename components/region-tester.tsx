@@ -22,15 +22,16 @@ interface RegionData {
 }
 
 const REGIONS: RegionData[] = [
-  { vercelRegion: 'iad1', flag: '🇺🇸', status: 'idle' }
-  // { vercelRegion: 'lhr1', flag: '🇬🇧', status: 'idle' },
-  // { vercelRegion: 'sin1', flag: '🇸🇬', status: 'idle' }
+  { vercelRegion: 'iad1', flag: '🇺🇸', status: 'idle' },
+  { vercelRegion: 'lhr1', flag: '🇬🇧', status: 'idle' },
+  { vercelRegion: 'sin1', flag: '🇸🇬', status: 'idle' }
 ]
 
 interface RegionTesterProps {
   isRunning: boolean
   targetUrl: string
   apiKey: string
+  regionCount: '1' | '3'
   onTestingComplete: () => void // Added callback prop
 }
 
@@ -46,35 +47,51 @@ export function RegionTester ({
   isRunning,
   targetUrl,
   apiKey,
+  regionCount,
   onTestingComplete
 }: RegionTesterProps) {
-  const [regions, setRegions] = useState<RegionData[]>(REGIONS)
+  // Filter regions based on regionCount
+  const getActiveRegions = (count: '1' | '3') => {
+    if (count === '1') {
+      return [REGIONS[0]] // Only use first region (iad1 - US East)
+    }
+    return REGIONS // Use all 3 regions
+  }
+
+  const [regions, setRegions] = useState<RegionData[]>(() =>
+    getActiveRegions(regionCount)
+  )
   const isTestingRef = useRef(false)
 
   const getCacheStatusColor = (status: string): string => {
     switch (status.toUpperCase()) {
       case 'HIT':
-        return 'bg-green-500/20 text-green-400 border border-green-500/30'
+        return 'bg-green-50 text-green-700 border border-green-200'
       case 'MISS':
-        return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+        return 'bg-yellow-50 text-yellow-700 border border-yellow-200'
       case 'BYPASS':
-        return 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+        return 'bg-blue-50 text-blue-700 border border-blue-200'
       case 'EXPIRED':
-        return 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+        return 'bg-orange-50 text-orange-700 border border-orange-200'
       case 'STALE':
-        return 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+        return 'bg-purple-50 text-purple-700 border border-purple-200'
       case 'UNKNOWN':
       default:
-        return 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+        return 'bg-gray-50 text-gray-700 border border-gray-200'
     }
   }
 
   const getLatencyColor = (latency: number): string => {
-    if (latency <= 100) return 'text-green-400'
-    if (latency <= 300) return 'text-yellow-400'
-    if (latency <= 500) return 'text-orange-400'
-    return 'text-red-400'
+    if (latency <= 100) return 'text-green-700'
+    if (latency <= 300) return 'text-yellow-700'
+    if (latency <= 500) return 'text-orange-700'
+    return 'text-red-700'
   }
+
+  // Update regions when regionCount changes
+  useEffect(() => {
+    setRegions(getActiveRegions(regionCount))
+  }, [regionCount])
 
   useEffect(() => {
     if (isRunning && !isTestingRef.current) {
@@ -97,8 +114,9 @@ export function RegionTester ({
     )
 
     try {
+      const activeRegions = getActiveRegions(regionCount)
       const responses = await Promise.all(
-        REGIONS.map(async regionData => {
+        activeRegions.map(async regionData => {
           try {
             const duration = timestamp()
             // Build URL with query parameters for GET request
@@ -111,10 +129,7 @@ export function RegionTester ({
             const baseUrl = `/api/microlink/${regionData.vercelRegion}`
             const url = `${baseUrl}?${params.toString()}`.toString()
 
-            const response = await fetch(url, {
-              method: 'GET'
-              // Remove cache: 'no-store' to allow Vercel caching
-            })
+            const response = await fetch(url, { cache: 'no-store' })
             const vercelLatency = duration()
 
             if (!response.ok) {
@@ -191,38 +206,38 @@ export function RegionTester ({
   }
 
   return (
-    <div className='bg-gray-900 rounded-lg border border-gray-800 overflow-hidden'>
+    <div className='bg-card rounded-lg border border-border overflow-hidden'>
       <div className='overflow-x-auto'>
         <table className='w-full'>
-          <thead className='bg-gray-800 border-b border-gray-700'>
+          <thead className='bg-muted border-b border-border'>
             <tr>
-              <th className='px-4 py-4 text-left text-sm font-semibold text-gray-200'>
+              <th className='px-4 py-4 text-left text-sm font-semibold text-foreground'>
                 Vercel Region
               </th>
-              <th className='px-4 py-4 text-center text-sm font-semibold text-gray-200'>
+              <th className='px-4 py-4 text-center text-sm font-semibold text-foreground'>
                 Microlink Cache
               </th>
-              <th className='px-4 py-4 text-center text-sm font-semibold text-gray-200'>
+              <th className='px-4 py-4 text-center text-sm font-semibold text-foreground'>
                 Microlink Time
               </th>
-              <th className='px-4 py-4 text-center text-sm font-semibold text-gray-200'>
+              <th className='px-4 py-4 text-center text-sm font-semibold text-foreground'>
                 Vercel Cache
               </th>
-              <th className='px-4 py-4 text-center text-sm font-semibold text-gray-200'>
+              <th className='px-4 py-4 text-center text-sm font-semibold text-foreground'>
                 Vercel Time
               </th>
-              <th className='px-4 py-4 text-center text-sm font-semibold text-gray-200'>
+              <th className='px-4 py-4 text-center text-sm font-semibold text-foreground'>
                 Status
               </th>
             </tr>
           </thead>
-          <tbody className='divide-y divide-gray-800'>
+          <tbody className='divide-y divide-border'>
             {regions.map(region => (
               <tr
                 key={region.vercelRegion}
-                className='hover:bg-gray-800/50 transition-colors'
+                className='hover:bg-muted/50 transition-colors'
               >
-                <td className='px-4 py-4 text-sm font-mono font-medium text-white'>
+                <td className='px-4 py-4 text-sm font-mono font-medium text-foreground'>
                   {region.vercelRegion} {region.flag}
                 </td>
                 <td className='px-4 py-4 text-center'>
@@ -237,11 +252,11 @@ export function RegionTester ({
                       {region.result.microlinkHeaders['x-request-id']}
                     </div>
                   ) : region.status === 'testing' ? (
-                    <div className='inline-block px-2 py-1 rounded text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 animate-pulse'>
+                    <div className='inline-block px-2 py-1 rounded text-xs bg-blue-50 text-blue-700 border border-blue-200 animate-pulse'>
                       ...
                     </div>
                   ) : (
-                    <div className='inline-block px-2 py-1 rounded text-xs bg-gray-800 text-gray-600 border border-gray-700'>
+                    <div className='inline-block px-2 py-1 rounded text-xs bg-muted text-muted-foreground border border-border'>
                       -
                     </div>
                   )}
@@ -257,11 +272,11 @@ export function RegionTester ({
                       {region.result.microlinkLatency}ms
                     </span>
                   ) : region.status === 'testing' ? (
-                    <span className='text-sm text-blue-400 animate-pulse'>
+                    <span className='text-sm text-blue-700 animate-pulse'>
                       ...
                     </span>
                   ) : (
-                    <span className='text-sm text-gray-600'>-</span>
+                    <span className='text-sm text-muted-foreground'>-</span>
                   )}
                 </td>
 
@@ -277,11 +292,11 @@ export function RegionTester ({
                       {region.result.vercelHeaders['x-vercel-id']}
                     </div>
                   ) : region.status === 'testing' ? (
-                    <div className='inline-block px-2 py-1 rounded text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 animate-pulse'>
+                    <div className='inline-block px-2 py-1 rounded text-xs bg-blue-50 text-blue-700 border border-blue-200 animate-pulse'>
                       ...
                     </div>
                   ) : (
-                    <div className='inline-block px-2 py-1 rounded text-xs bg-gray-800 text-gray-600 border border-gray-700'>
+                    <div className='inline-block px-2 py-1 rounded text-xs bg-muted text-muted-foreground border border-border'>
                       -
                     </div>
                   )}
@@ -297,11 +312,11 @@ export function RegionTester ({
                       {region.result.vercelLatency}ms
                     </span>
                   ) : region.status === 'testing' ? (
-                    <span className='text-sm text-blue-400 animate-pulse'>
+                    <span className='text-sm text-blue-700 animate-pulse'>
                       ...
                     </span>
                   ) : (
-                    <span className='text-sm text-gray-600'>-</span>
+                    <span className='text-sm text-muted-foreground'>-</span>
                   )}
                 </td>
 
@@ -316,12 +331,12 @@ export function RegionTester ({
                     }
                     className={
                       region.status === 'complete'
-                        ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                        ? 'bg-green-50 text-green-700 border border-green-200'
                         : region.status === 'error'
-                        ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                        ? 'bg-red-50 text-red-700 border border-red-200'
                         : region.status === 'testing'
-                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                        : 'bg-gray-700 text-gray-300 border border-gray-600'
+                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                        : 'bg-muted text-muted-foreground border border-border'
                     }
                   >
                     {region.status === 'complete'
