@@ -108,9 +108,11 @@ export function RegionTester ({
             if (apiKey) {
               params.set('apiKey', apiKey)
             }
-            const url = `/api/microlink/${
-              regionData.vercelRegion
-            }?${params.toString()}`
+            // const baseUrl = `https://vercel-latency-jucqt31sj-microlink.vercel.app/api/microlink/${regionData.vercelRegion}`
+            const baseUrl = `/api/microlink/${regionData.vercelRegion}`
+
+            const url = `${baseUrl}?${params.toString()}`.toString()
+
             console.log({ url })
 
             const response = await fetch(url, {
