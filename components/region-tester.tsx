@@ -22,9 +22,9 @@ interface RegionData {
 }
 
 const REGIONS: RegionData[] = [
-  { vercelRegion: 'iad1', flag: '🇺🇸', status: 'idle' },
-  { vercelRegion: 'lhr1', flag: '🇬🇧', status: 'idle' },
-  { vercelRegion: 'sin1', flag: '🇸🇬', status: 'idle' }
+  { vercelRegion: 'iad1', flag: '🇺🇸', status: 'idle' }
+  // { vercelRegion: 'lhr1', flag: '🇬🇧', status: 'idle' },
+  // { vercelRegion: 'sin1', flag: '🇸🇬', status: 'idle' }
 ]
 
 interface RegionTesterProps {
@@ -108,12 +108,8 @@ export function RegionTester ({
             if (apiKey) {
               params.set('apiKey', apiKey)
             }
-            // const baseUrl = `https://vercel-latency-jucqt31sj-microlink.vercel.app/api/microlink/${regionData.vercelRegion}`
             const baseUrl = `/api/microlink/${regionData.vercelRegion}`
-
             const url = `${baseUrl}?${params.toString()}`.toString()
-
-            console.log({ url })
 
             const response = await fetch(url, {
               method: 'GET'
@@ -148,8 +144,6 @@ export function RegionTester ({
           }
         })
       )
-
-      console.log(responses)
 
       // Process responses and update regions
       setRegions(prev =>
@@ -239,7 +233,8 @@ export function RegionTester ({
                       )}`}
                     >
                       {region.result.microlinkCacheStatus}{' '}
-                      {getTTL(region.result.microlinkHeaders)}
+                      {getTTL(region.result.microlinkHeaders)}{' '}
+                      {region.result.microlinkHeaders['x-request-id']}
                     </div>
                   ) : region.status === 'testing' ? (
                     <div className='inline-block px-2 py-1 rounded text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 animate-pulse'>
@@ -278,7 +273,8 @@ export function RegionTester ({
                       )}`}
                     >
                       {region.result.vercelCacheStatus}{' '}
-                      {getTTL(region.result.vercelHeaders)}
+                      {getTTL(region.result.vercelHeaders)}{' '}
+                      {region.result.vercelHeaders['x-vercel-id']}
                     </div>
                   ) : region.status === 'testing' ? (
                     <div className='inline-block px-2 py-1 rounded text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 animate-pulse'>
