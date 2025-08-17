@@ -1,9 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { timestamp } from "@/lib/utils"
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const { url, apiKey } = await request.json()
+    const { searchParams } = new URL(request.url)
+    const url = searchParams.get('url')
+    const apiKey = searchParams.get('apiKey')
 
     if (!url) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 })

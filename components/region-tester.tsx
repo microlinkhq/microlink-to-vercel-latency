@@ -101,17 +101,21 @@ export function RegionTester ({
         REGIONS.map(async regionData => {
           try {
             const duration = timestamp()
-            const url = `/api/microlink/${regionData.vercelRegion}`
+            // Build URL with query parameters for GET request
+            const params = new URLSearchParams({
+              url: targetUrl
+            })
+            if (apiKey) {
+              params.set('apiKey', apiKey)
+            }
+            const url = `/api/microlink/${
+              regionData.vercelRegion
+            }?${params.toString()}`
+            console.log({ url })
+
             const response = await fetch(url, {
-              cache: 'no-store',
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                url: targetUrl,
-                apiKey: apiKey || undefined
-              })
+              method: 'GET'
+              // Remove cache: 'no-store' to allow Vercel caching
             })
             const vercelLatency = duration()
 
