@@ -1,19 +1,19 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Search, Play, RotateCcw, Key } from "lucide-react"
-import { RegionTester } from "@/components/region-tester"
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Search, Play, RotateCcw, Key } from 'lucide-react'
+import { RegionTester } from '@/components/region-tester'
 
-export default function HomePage() {
-  const [targetUrl, setTargetUrl] = useState("https://microlink.io/docs")
+export default function HomePage () {
+  const [targetUrl, setTargetUrl] = useState('https://microlink.io/docs')
   const [isRunning, setIsRunning] = useState(false)
-  const [apiKey, setApiKey] = useState("")
+  const [apiKey, setApiKey] = useState('')
 
   useEffect(() => {
-    const savedApiKey = localStorage.getItem("microlink-api-key")
+    const savedApiKey = localStorage.getItem('microlink-api-key')
     if (savedApiKey) {
       setApiKey(savedApiKey)
     }
@@ -22,9 +22,9 @@ export default function HomePage() {
   const handleApiKeyChange = (value: string) => {
     setApiKey(value)
     if (value) {
-      localStorage.setItem("microlink-api-key", value)
+      localStorage.setItem('microlink-api-key', value)
     } else {
-      localStorage.removeItem("microlink-api-key")
+      localStorage.removeItem('microlink-api-key')
     }
   }
 
@@ -33,70 +33,75 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className='min-h-screen bg-black text-white'>
       {/* Header */}
-      <header className="border-b border-gray-800">
-        <div className="max-w-4xl mx-auto px-6 py-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold mb-2">
-              Microlink<span className="text-blue-400">API</span> Global Latency
+      <header className='border-b border-gray-800'>
+        <div className='max-w-4xl mx-auto px-6 py-8'>
+          <div className='text-center'>
+            <h1 className='text-4xl font-bold mb-2'>
+              Microlink<span className='text-blue-400'>API</span> Global Latency
             </h1>
-            <p className="text-gray-400 text-lg">Test response times from all Vercel Edge regions</p>
-          </div>
-
-          {/* API Key input section */}
-          <div className="mt-8 max-w-md mx-auto">
-            <Label htmlFor="api-key" className="text-sm font-medium text-gray-300 mb-2 block">
-              Microlink API Key
-            </Label>
-            <div className="relative">
-              <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                id="api-key"
-                type="password"
-                value={apiKey}
-                onChange={(e) => handleApiKeyChange(e.target.value)}
-                placeholder="Enter your Microlink API key..."
-                className="pl-10 bg-gray-900 border-gray-700 text-white placeholder-gray-400 focus:border-blue-400"
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Get your API key from{" "}
-              <a
-                href="https://microlink.io"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-400 hover:underline"
-              >
-                microlink.io
-              </a>
+            <p className='text-gray-400 text-lg'>
+              Test response times from all Vercel Edge regions
             </p>
           </div>
 
+          {/* API Key input section */}
+          <div className='mt-8 max-w-md mx-auto'>
+            <Label
+              htmlFor='api-key'
+              className='text-sm font-medium text-gray-300 mb-2 block'
+            >
+              Microlink API Key
+            </Label>
+            <div className='relative'>
+              <Key className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4' />
+              <Input
+                id='api-key'
+                type='password'
+                value={apiKey}
+                onChange={e => handleApiKeyChange(e.target.value)}
+                placeholder='Enter your Microlink API key...'
+                className='pl-10 bg-gray-900 border-gray-700 text-white placeholder-gray-400 focus:border-blue-400'
+              />
+            </div>
+            {/* <p className='text-xs text-gray-500 mt-1'>
+              Get your API key from{' '}
+              <a
+                href='https://microlink.io'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-blue-400 hover:underline'
+              >
+                microlink.io
+              </a>
+            </p> */}
+          </div>
+
           {/* Search Bar */}
-          <div className="mt-6 flex justify-center">
-            <div className="relative max-w-md w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <div className='mt-6 flex justify-center'>
+            <div className='relative max-w-md w-full'>
+              <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4' />
               <Input
                 value={targetUrl}
-                onChange={(e) => setTargetUrl(e.target.value)}
-                placeholder="Enter URL to test..."
-                className="pl-10 bg-gray-900 border-gray-700 text-white placeholder-gray-400 focus:border-blue-400"
+                onChange={e => setTargetUrl(e.target.value)}
+                placeholder='Enter URL to test...'
+                className='pl-10 bg-gray-900 border-gray-700 text-white placeholder-gray-400 focus:border-blue-400'
               />
             </div>
             <Button
               onClick={() => setIsRunning(!isRunning)}
               disabled={isRunning} // removed !apiKey condition to make API key optional
-              className="ml-3 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+              className='ml-3 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50'
             >
               {isRunning ? (
                 <>
-                  <RotateCcw className="w-4 h-4 animate-spin mr-2" />
+                  <RotateCcw className='w-4 h-4 animate-spin mr-2' />
                   Testing...
                 </>
               ) : (
                 <>
-                  <Play className="w-4 h-4 mr-2" />
+                  <Play className='w-4 h-4 mr-2' />
                   Verify Cache Integrity
                 </>
               )}
@@ -105,19 +110,20 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className='max-w-6xl mx-auto px-6 py-8'>
         {/* Description */}
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Cache Integrity Verification</h2>
-          <p className="text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            The demo verifies cache integrity between Vercel and Microlink across 3 regions. Each test performs a single
-            request to check cf-cache-status from Microlink and cache headers from Vercel, measuring response times to
-            analyze caching behavior across the global edge network.
+        <div className='text-center mb-8'>
+          <h2 className='text-2xl font-semibold mb-4'>
+            Cache Integrity Verification
+          </h2>
+          <p className='text-gray-400 max-w-3xl mx-auto leading-relaxed'>
+            The demo verifies cache integrity between Vercel and Microlink
+            across 3 regions. Each test performs a single request to check
+            cf-cache-status from Microlink and cache headers from Vercel,
+            measuring response times to analyze caching behavior across the
+            global edge network.
           </p>
         </div>
-
-        {/* Code Example */}
-        
 
         {/* Results Table */}
         <RegionTester
